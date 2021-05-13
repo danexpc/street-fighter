@@ -11,7 +11,7 @@ export async function fight(firstFighter, secondFighter) {
     firstFighter = {...firstFighter, maxHealth: firstFighter.health, isBlocking: false}
     secondFighter = {...secondFighter, maxHealth: secondFighter.health, isBlocking: false}
 
-    keypressHandler = keypressHandler.bind(null, firstFighter, secondFighter, resolve);
+    keydownHandlerAttack = keydownHandlerAttack.bind(null, firstFighter, secondFighter, resolve);
     keydownHandler = keydownHandler.bind(null, firstFighter, secondFighter);
     keyupHandler = keyupHandler.bind(null, firstFighter, secondFighter);
 
@@ -19,7 +19,7 @@ export async function fight(firstFighter, secondFighter) {
 
     document.addEventListener('keyup', keyupHandler, false);
 
-    document.addEventListener('keypress', keypressHandler, false);
+    document.addEventListener('keydown', keydownHandlerAttack, false);
   });
 }
 
@@ -69,13 +69,14 @@ function keyupHandler(firstFighter, secondFighter, event) {
 }
 
 
-function keypressHandler(firstFighter, secondFighter, resolve, event) {
+function keydownHandlerAttack(firstFighter, secondFighter, resolve, event) {
   let code = event.code;
   if (code === controls.PlayerOneAttack) {
     if (!firstFighter.isBlocking) {
       if (!secondFighter.isBlocking) {
         secondFighter.health -= getDamage(firstFighter, secondFighter);
         if (secondFighter.health <= 0) {
+          document.querySelector('#right-fighter-indicator.arena___health-bar').style.width = 0;
           clearFightEvents();
           resolve(firstFighter);
         }
@@ -88,6 +89,7 @@ function keypressHandler(firstFighter, secondFighter, resolve, event) {
       if (!firstFighter.isBlocking) {
         firstFighter.health -= getDamage(secondFighter, firstFighter);
         if (firstFighter.health <= 0) {
+          document.querySelector('#left-fighter-indicator.arena___health-bar').style.width = 0;
           clearFightEvents();
           resolve(secondFighter);
         }
@@ -98,7 +100,7 @@ function keypressHandler(firstFighter, secondFighter, resolve, event) {
 }
 
 function clearFightEvents() {
-  document.removeEventListener('keypress', keypressHandler, false);
+  document.removeEventListener('keydown', keydownHandlerAttack, false);
   document.removeEventListener('keydown', keydownHandler, false);
   document.removeEventListener('keyup', keyupHandler, false);
 }
