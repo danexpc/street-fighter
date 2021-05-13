@@ -6,7 +6,6 @@ export function createFighterPreview(fighter, position) {
     tagName: 'div',
     className: `fighter-preview___root ${positionClassName}`,
   });
-  console.log(fighter)
 
   if (fighter) {
     fighterElement.appendChild(createFighterImage(fighter));
