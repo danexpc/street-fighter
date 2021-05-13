@@ -27,7 +27,6 @@ function keydownHandler(firstFighter, secondFighter, event) {
   let code = event.code;
   pressedButtons.push(code);
   if (isSubset(pressedButtons, controls.PlayerOneCriticalHitCombination) && isPlayerOneCanDoCriticalHit) {
-    console.log("Crit 1");
     secondFighter.health -= firstFighter.attack * 2;
     document.querySelector('#right-fighter-indicator.arena___health-bar').style.width = (secondFighter.health/secondFighter.maxHealth) * 100 + '%';
     isPlayerOneCanDoCriticalHit = false;
@@ -37,7 +36,6 @@ function keydownHandler(firstFighter, secondFighter, event) {
   }
 
   if (isSubset(pressedButtons, controls.PlayerTwoCriticalHitCombination) && isPlayerTwoCanDoCriticalHit) {
-    console.log("Crit 2");
     firstFighter.health -= secondFighter.attack * 2;
     document.querySelector('#left-fighter-indicator.arena___health-bar').style.width = (firstFighter.health/firstFighter.maxHealth) * 100 + '%';
     isPlayerTwoCanDoCriticalHit = false;
@@ -75,22 +73,26 @@ function keypressHandler(firstFighter, secondFighter, resolve, event) {
   let code = event.code;
   if (code === controls.PlayerOneAttack) {
     if (!firstFighter.isBlocking) {
-      secondFighter.health -= getDamage(firstFighter, secondFighter);
-      if (secondFighter.health <= 0) {
-        clearFightEvents();
-        resolve(firstFighter);
+      if (!secondFighter.isBlocking) {
+        secondFighter.health -= getDamage(firstFighter, secondFighter);
+        if (secondFighter.health <= 0) {
+          clearFightEvents();
+          resolve(firstFighter);
+        }
+        document.querySelector('#right-fighter-indicator.arena___health-bar').style.width = (secondFighter.health/secondFighter.maxHealth) * 100 + '%';
       }
-      document.querySelector('#right-fighter-indicator.arena___health-bar').style.width = (secondFighter.health/secondFighter.maxHealth) * 100 + '%';
     }
   }
   if (code === controls.PlayerTwoAttack) {
     if (!secondFighter.isBlocking) {
-      firstFighter.health -= getDamage(secondFighter, firstFighter);
-      if (firstFighter.health <= 0) {
-        clearFightEvents();
-        resolve(secondFighter);
+      if (!firstFighter.isBlocking) {
+        firstFighter.health -= getDamage(secondFighter, firstFighter);
+        if (firstFighter.health <= 0) {
+          clearFightEvents();
+          resolve(secondFighter);
+        }
+        document.querySelector('#left-fighter-indicator.arena___health-bar').style.width = (firstFighter.health/firstFighter.maxHealth) * 100 + '%';
       }
-      document.querySelector('#left-fighter-indicator.arena___health-bar').style.width = (firstFighter.health/firstFighter.maxHealth) * 100 + '%';
     }
   }
 }
@@ -117,7 +119,7 @@ function isSubset(arr1, arr2) {
 }
 
 export function getDamage(attacker, defender) {
-  const damage = getHitPower(attacker) - (defender.isBlocking ? getBlockPower(defender) : 0);
+  const damage = getHitPower(attacker) - getBlockPower(defender);
   return damage > 0 ? damage : 0;
 }
 
