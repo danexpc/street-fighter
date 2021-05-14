@@ -9,7 +9,7 @@ export async function fight(firstFighter, secondFighter) {
 
     keydownAttackHandler = keydownAttackHandler.bind(null, firstFighter, secondFighter, resolve);
     keydownBlockHandler = keydownBlockHandler.bind(null, firstFighter, secondFighter);
-    keydownCriticalAttackHandler = keydownCriticalAttackHandler.bind(null, firstFighter, secondFighter);
+    keydownCriticalAttackHandler = keydownCriticalAttackHandler.bind(null, firstFighter, secondFighter, resolve);
     keyupHandler = keyupHandler.bind(null, firstFighter, secondFighter);
 
     document.addEventListener('keydown', keydownBlockHandler, false);
@@ -56,7 +56,7 @@ function keydownAttackHandler(firstFighter, secondFighter, resolve, event) {
   }
 }
 
-function keydownCriticalAttackHandler(firstFighter, secondFighter, event) {
+function keydownCriticalAttackHandler(firstFighter, secondFighter, resolve, event) {
   let code = event.code;
 
   pressedButtons.add(code);
@@ -70,17 +70,25 @@ function keydownCriticalAttackHandler(firstFighter, secondFighter, event) {
   }
 
   if (isSubset(controls.PlayerOneCriticalHitCombination) && firstFighter.canDoCriticalHit) {
-    secondFighter.health -= getCriticalDamage(firstFighter.entity);
+    secondFighter.health -= Math.min(getCriticalDamage(firstFighter.entity), secondFighter.health);
     secondFighter.healthIndicator.style.width = `${100 / secondFighter.entity.health * secondFighter.health}%`;
     firstFighter.canDoCriticalHit = false;
     setCriticalHitTimeout(firstFighter, 10000);
+    if (secondFighter.health == 0) {
+      clearFightEvents();
+      resolve(firstFighter.entity);
+    }
   }
 
   if (isSubset(controls.PlayerTwoCriticalHitCombination) && secondFighter.canDoCriticalHit) {
-    firstFighter.health -= getCriticalDamage(secondFighter.entity);
+    firstFighter.health -= Math.min(getCriticalDamage(secondFighter.entity), firstFighter.health);
     firstFighter.healthIndicator.style.width = `${100 / firstFighter.entity.health * firstFighter.health}%`;
     secondFighter.canDoCriticalHit = false;
     setCriticalHitTimeout(secondFighter, 10000);
+    if (firstFighter.health == 0) {
+      clearFightEvents();
+      resolve(secondFighter.entity);
+    }
   }
 }
 
