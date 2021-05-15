@@ -1,4 +1,4 @@
-# stage-2-es6-for-everyone
+# To live is to fight, and to fight is to live.
 
 ## Instalation
 
